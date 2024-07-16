@@ -1,5 +1,6 @@
 version: '3'
 services:
+    # https://www.jaegertracing.io/docs/1.59/
     jaeger-all-in-one:
         image: jaegertracing/all-in-one:latest
         restart: always
