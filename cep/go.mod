@@ -3,8 +3,6 @@ module github.com/andremelinski/observability/cep
 go 1.22.0
 
 require (
-	github.com/andremelinski/go-gcp v0.0.0-20240716122903-34e1eff3c27d
-	github.com/andremelinski/observability/weather v0.0.0-20240718205643-4c392706d8de
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/grpc v1.65.0
@@ -14,6 +12,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/go-chi/chi v1.5.5
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

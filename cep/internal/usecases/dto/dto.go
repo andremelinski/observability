@@ -9,3 +9,9 @@ type LocationOutputDTO struct{
 	UF string `json:"uf"`
 	DDD string `json:"ddd"`
 }
+
+type TempDTOOutput struct{
+	Celsius float64 `json:"temp_C"`;
+	Fahrenheit float64 `json:"temp_F"`;
+	Kelvin float64 `json:"temp_K"`;
+}

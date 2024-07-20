@@ -5,6 +5,7 @@ import "github.com/spf13/viper"
 type conf struct {
 	GRPC_PORT     int `mapstructure:"GRPC_PORT"`
 	GRPC_SERVER_NAME     string `mapstructure:"GRPC_SERVER_NAME"`
+	HTTP_PORT     int `mapstructure:"HTTP_PORT"`
 }
 
 func LoadConfig(path string) (*conf, error) {

@@ -1,11 +1,9 @@
-package usecases
+package usecases_cep
 
 import (
 	utils_interface "github.com/andremelinski/observability/cep/internal/pkg/utils/interface"
 	usecases_dto "github.com/andremelinski/observability/cep/internal/usecases/dto"
 )
-
-
 
 type LocationUseCase struct {
 	cepInfo utils_interface.ICepInfoAPI

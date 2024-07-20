@@ -13,11 +13,9 @@ type TempResponseDTO struct{
 type IGrpcHandler interface{
 	WeatherBidirectStream() pb.WeatherService_GetLocationTemperatureClient
 	StartGrpcWeatherClient() pb.WeatherServiceClient
-}
-
-type IGrpcCloseWeatherConn interface {
 	CloseGrpcWeatherClient() error
 }
+
 
 type IGrpcClimateInfo interface{ 
 	GetLocationTemperature(location string) (*TempResponseDTO, error)

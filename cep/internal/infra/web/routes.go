@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/andremelinski/go-gcp/internal/infra/web/webserver/handlers"
+	"github.com/andremelinski/observability/cep/internal/infra/web/handlers"
 )
 
 type RouteHandler struct {
@@ -12,13 +12,12 @@ type RouteHandler struct {
 	HandlerFunc http.HandlerFunc
 }
 
-// struct recebe a interface que possui os endpoints desse usecase + middlewares
 type WebRouter struct {
-	CityWebHandler       handlers.CityWebHandlerInterface
+	CityWebHandler       handlers.ICityWebHandler
 }
 
 func NewWebRouter(
-	cityHandlers handlers.CityWebHandlerInterface,
+	cityHandlers handlers.ICityWebHandler,
 ) *WebRouter {
 	return &WebRouter{
 		cityHandlers,

@@ -9,17 +9,19 @@ import (
 )
 
 type WeatherService struct{
-	pb.WeatherService_GetLocationTemperatureClient
-	closeConn grpc_interfaces.IGrpcCloseWeatherConn
+	grpcHandler grpc_interfaces.IGrpcHandler
 }
 
-func NewWeatherService() *WeatherService{
+func NewWeatherService(
+	grpcHandler grpc_interfaces.IGrpcHandler,
+	) *WeatherService{
 	return &WeatherService{
+		grpcHandler,
 	}
 }
 
 func(ws *WeatherService) GetLocationTemperature(location string) (*grpc_interfaces.TempResponseDTO, error){
-	grpcClient := ws.WeatherService_GetLocationTemperatureClient
+	grpcClient := ws.grpcHandler.WeatherBidirectStream()
 	
 	grpcClient.Send(&pb.WeatherLocationRequest{Place: location})
 	res, err := grpcClient.Recv()
@@ -29,7 +31,7 @@ func(ws *WeatherService) GetLocationTemperature(location string) (*grpc_interfac
 	}
 	fmt.Println(res)
 	
-	defer ws.closeConn.CloseGrpcWeatherClient()
+	defer ws.grpcHandler.CloseGrpcWeatherClient()
 
 	return &grpc_interfaces.TempResponseDTO{
 		Temp_C: float64(res.Temp_C),

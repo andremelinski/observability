@@ -1,9 +1,14 @@
-package web
+package web_utils
 
 import (
 	"encoding/json"
 	"net/http"
 )
+
+type IWebResponseHandler interface{
+	Respond(w http.ResponseWriter, statusCode int, data any)
+	RespondWithError(w http.ResponseWriter, statusCode int, err error)
+}
 
 type WebResponseHandler struct{}
 

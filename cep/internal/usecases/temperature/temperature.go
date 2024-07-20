@@ -1,14 +1,11 @@
-package usecases
+package usecases_temperature
 
-import grpc_interfaces "github.com/andremelinski/observability/cep/internal/infra/grpc/interfaces"
+import (
+	grpc_interfaces "github.com/andremelinski/observability/cep/internal/infra/grpc/interfaces"
+	usecases_dto "github.com/andremelinski/observability/cep/internal/usecases/dto"
+)
 
-type TempDTOOutput struct{
-	Celsius float64 `json:"temp_C"`;
-	Fahrenheit float64 `json:"temp_F"`;
-	Kelvin float64 `json:"temp_K"`;
-}
-
-// retornar as temperaturas e formata-lás em: Celsius, Fahrenheit, Kelvin. 
+// retornar as temperaturas e formata-lás em: Celsius, Fahrenheit, Kelvin.
 type TemperatureUseCase struct {
 	WeatheInfo grpc_interfaces.IGrpcClimateInfo
 }
@@ -19,14 +16,14 @@ func NewClimateUseCase(climateApi grpc_interfaces.IGrpcClimateInfo)*TemperatureU
 	}
 }
 
-func (l *TemperatureUseCase)GetTempByPlaceName(name string) (*TempDTOOutput, error){
+func (l *TemperatureUseCase) GetTempByPlaceName(name string) (*usecases_dto.TempDTOOutput, error){
 	weatherInfo, err := l.WeatheInfo.GetLocationTemperature(name)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &TempDTOOutput{
+	return &usecases_dto.TempDTOOutput{
 		Celsius: weatherInfo.Temp_C,
 		Fahrenheit: weatherInfo.Temp_F,
 		Kelvin: weatherInfo.Temp_K,

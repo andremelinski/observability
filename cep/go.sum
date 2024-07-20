@@ -1,7 +1,3 @@
-github.com/andremelinski/go-gcp v0.0.0-20240716122903-34e1eff3c27d h1:2ISnVls0/2PbZL281v33qH4PgsUvJvlywaTBXb+8a5Q=
-github.com/andremelinski/go-gcp v0.0.0-20240716122903-34e1eff3c27d/go.mod h1:6nQKmVuRlAjbTbQjlQe3UHZWsdKsSD1/gHAyAepSb2g=
-github.com/andremelinski/observability/weather v0.0.0-20240718205643-4c392706d8de h1:EDVkyr4lyeqCnWyLpk+Yug/tSCOA38shtzLDy1fD5q0=
-github.com/andremelinski/observability/weather v0.0.0-20240718205643-4c392706d8de/go.mod h1:fYOC+xEkfqRomioc+WwUV7yUzsK+aydZY9djBqiIQeQ=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
