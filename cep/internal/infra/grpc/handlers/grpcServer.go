@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"flag"
 	"fmt"
 
 	"github.com/andremelinski/observability/cep/internal/infra/grpc/pb"
@@ -47,10 +48,11 @@ func (g *GrpcServer) CloseGrpcWeatherClient() error {
 }
 
 func (g *GrpcServer) grpcConn() *grpc.ClientConn {
-	addr := fmt.Sprintf("%s:%d", g.grpcServerName, g.grpcPort)
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	addr := flag.String("addr", "localhost:50051", "the address to connect to")
+	conn, err := grpc.NewClient(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
+		fmt.Println("aquia!!!!!!")
 	  panic(err)
 	}
 	return conn

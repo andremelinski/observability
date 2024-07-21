@@ -2,7 +2,7 @@ syntax = "proto3";
 package pb;
 option go_package = "internal/infra/grpc/pb";
 
-message CreateOrderResponse {
+message WeatherLocationResponse {
 	float temp_C = 1;
 	float temp_F = 2;
 	float temp_K = 3;
@@ -13,5 +13,5 @@ message WeatherLocationRequest {
 }
 
 service WeatherService {
-  rpc GetLocationTemperature(WeatherLocationRequest) returns (CreateOrderResponse);
+  rpc GetLocationTemperature(stream WeatherLocationRequest) returns (stream WeatherLocationResponse);
 }
