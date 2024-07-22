@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 
 	"github.com/andremelinski/observability/cep/internal/infra/grpc/pb"
@@ -10,24 +11,18 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var (
-	addr = flag.String("addr", "localhost:50051", "the address to connect to")
-)
-
 type GrpcServer struct{
-	grpcServerName string
-	grpcPort int
+	addr *string
 }
 
 func NewGrpcServer(grpc_server_name string, grpc_port int)*GrpcServer{
+	connectString := fmt.Sprintf("%s:%d", grpc_server_name, grpc_port)
 	return &GrpcServer{
-		grpc_server_name,
-		grpc_port,
+		flag.String("addr", connectString, "the address to connect to"),
 	}
 }
 
 func (g *GrpcServer) WeatherBidirectStream(ctx context.Context) pb.WeatherService_GetLocationTemperatureClient {
-
 	client := g.StartGrpcWeatherClient()
 	stream, err := client.GetLocationTemperature(ctx)
 
@@ -38,22 +33,17 @@ func (g *GrpcServer) WeatherBidirectStream(ctx context.Context) pb.WeatherServic
 }
 
 func (g *GrpcServer) StartGrpcWeatherClient() pb.WeatherServiceClient {
-
 	grpcConn := g.grpcConn()
-
 	return pb.NewWeatherServiceClient(grpcConn)
 }
 
 func (g *GrpcServer) CloseGrpcWeatherClient() error {
-
 	grpcConn := g.grpcConn()
-
 	return grpcConn.Close()
 }
 
 func (g *GrpcServer) grpcConn() *grpc.ClientConn {
-	
-conn, err := grpc.NewClient(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(*g.addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 	  panic(err)
 	}
