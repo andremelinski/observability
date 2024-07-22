@@ -3,11 +3,15 @@ package handlers
 import (
 	"context"
 	"flag"
-	"fmt"
+	"log"
 
 	"github.com/andremelinski/observability/cep/internal/infra/grpc/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+)
+
+var (
+	addr = flag.String("addr", "localhost:50051", "the address to connect to")
 )
 
 type GrpcServer struct{
@@ -22,10 +26,10 @@ func NewGrpcServer(grpc_server_name string, grpc_port int)*GrpcServer{
 	}
 }
 
-func (g *GrpcServer) WeatherBidirectStream() pb.WeatherService_GetLocationTemperatureClient {
+func (g *GrpcServer) WeatherBidirectStream(ctx context.Context) pb.WeatherService_GetLocationTemperatureClient {
 
 	client := g.StartGrpcWeatherClient()
-	stream, err := client.GetLocationTemperature(context.Background())
+	stream, err := client.GetLocationTemperature(ctx)
 
 	if err != nil {
 		panic(err)
@@ -48,12 +52,12 @@ func (g *GrpcServer) CloseGrpcWeatherClient() error {
 }
 
 func (g *GrpcServer) grpcConn() *grpc.ClientConn {
-	addr := flag.String("addr", "localhost:50051", "the address to connect to")
-	conn, err := grpc.NewClient(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-
+	
+conn, err := grpc.NewClient(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		fmt.Println("aquia!!!!!!")
 	  panic(err)
 	}
+
+	log.Println("conectou")
 	return conn
 }

@@ -13,5 +13,5 @@ message WeatherLocationRequest {
 }
 
 service WeatherService {
-  rpc GetLocationTemperature(stream WeatherLocationRequest) returns (stream WeatherLocationResponse);
+  rpc GetLocationTemperature(stream WeatherLocationRequest) returns (stream WeatherLocationResponse){};
 }

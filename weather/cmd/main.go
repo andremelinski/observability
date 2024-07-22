@@ -5,7 +5,6 @@ import (
 	"github.com/andremelinski/observability/weather/internal/infra/grpc/handlers"
 	"github.com/andremelinski/observability/weather/internal/pkg/utils"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 
@@ -16,10 +15,9 @@ func main(){
 	}
 
 	grpcServer := grpc.NewServer()
-	reflection.Register(grpcServer)
 
 	handlerExternalApi := utils.NewHandlerExternalApi()
 	
-	handlers.NewGrpcResgisters(grpcServer, configs.WEATHER_API_KEY, handlerExternalApi)
+	handlers.NewGrpcResgisters(grpcServer, configs.WEATHER_API_KEY, handlerExternalApi).CreateGrpcWeatherRegisters()
 	handlers.NewGrpcServer(grpcServer, configs.GRPC_PORT).Start()
 }

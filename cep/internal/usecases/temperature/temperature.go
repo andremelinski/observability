@@ -1,6 +1,8 @@
 package usecases_temperature
 
 import (
+	"log"
+
 	grpc_interfaces "github.com/andremelinski/observability/cep/internal/infra/grpc/interfaces"
 	usecases_dto "github.com/andremelinski/observability/cep/internal/usecases/dto"
 )
@@ -18,7 +20,7 @@ func NewClimateUseCase(climateApi grpc_interfaces.IGrpcClimateInfo)*TemperatureU
 
 func (l *TemperatureUseCase) GetTempByPlaceName(name string) (*usecases_dto.TempDTOOutput, error){
 	weatherInfo, err := l.WeatheInfo.GetLocationTemperature(name)
-
+	log.Println(weatherInfo)
 	if err != nil {
 		return nil, err
 	}

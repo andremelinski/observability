@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type GrpcServer struct{
@@ -20,10 +22,15 @@ func NewGrpcServer(grpcServer *grpc.Server, grpc_port int)*GrpcServer{
 }
 
 func (g *GrpcServer) Start() {
+	reflection.Register(g.grpcServer)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", g.grpc_port))
 	if err != nil {
 		panic(err)
 	}
-	g.grpcServer.Serve(lis)
+ 	log.Println("Server is running on port :50051")
+    
+	if err := g.grpcServer.Serve(lis); err != nil {
+        log.Fatalf("failed to serve: %v", err)
+    }
 }

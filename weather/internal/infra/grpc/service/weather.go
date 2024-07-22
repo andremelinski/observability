@@ -1,7 +1,7 @@
 package service
 
 import (
-	"context"
+	"io"
 
 	"github.com/andremelinski/observability/weather/internal/infra/grpc/pb"
 	utils_interface "github.com/andremelinski/observability/weather/internal/pkg/utils/interface"
@@ -19,16 +19,28 @@ func NewWeatherService(weatherInfo utils_interface.IClimateInfoAPI) *WeatherServ
 	}
 }
 
-func(ws *WeatherService) GGetLocationTemperature(cx context.Context, in *pb.WeatherLocationRequest) (*pb.WeatherLocationResponse, error){
-	
-	weatherInfo, err := ws.weatherInfo.GetWeatherInfo(in.Place)
-	if err != nil {
-		return nil, err
-	}
+func(ws *WeatherService) GetLocationTemperature(stream pb.WeatherService_GetLocationTemperatureServer) error {
+	location, err := stream.Recv()
 
-	return &pb.WeatherLocationResponse{
+	if err == io.EOF{
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	weatherInfo, err := ws.weatherInfo.GetWeatherInfo(location.Place)
+	if err != nil {
+		return err
+	}
+	k := weatherInfo.Current.TempC + 273
+	err = stream.Send(&pb.WeatherLocationResponse{
 		Temp_C: float32(weatherInfo.Current.TempC),
 		Temp_F: float32(weatherInfo.Current.TempF),
-		Temp_K: float32(weatherInfo.Current.TempC + 273),
-	}, nil
+		Temp_K: float32(k),
+	})
+
+	if err != nil {
+		return err
+	}
+	return nil 
 }

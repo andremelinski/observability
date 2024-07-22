@@ -26,5 +26,5 @@ func(gs *GrpcResgisterService) CreateGrpcWeatherRegisters(){
 	
 	a := utils.NewWeatherInfo(gs.weatherApiKey, gs.callExternalapi)
 	weatherService := service.NewWeatherService(a)
-	pb.RegisterWeatherServiceServer(gs.grpcServer, weatherService)
+    pb.RegisterWeatherServiceServer(gs.grpcServer, weatherService)
 }

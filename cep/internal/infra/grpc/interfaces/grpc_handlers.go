@@ -1,6 +1,8 @@
 package grpc_interfaces
 
 import (
+	"context"
+
 	"github.com/andremelinski/observability/cep/internal/infra/grpc/pb"
 )
 
@@ -11,7 +13,7 @@ type TempResponseDTO struct{
 }
 
 type IGrpcHandler interface{
-	WeatherBidirectStream() pb.WeatherService_GetLocationTemperatureClient
+	WeatherBidirectStream(ctx context.Context) pb.WeatherService_GetLocationTemperatureClient
 	StartGrpcWeatherClient() pb.WeatherServiceClient
 	CloseGrpcWeatherClient() error
 }
