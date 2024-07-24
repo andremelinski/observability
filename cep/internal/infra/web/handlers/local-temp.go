@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/andremelinski/observability/cep/internal/infra/opentelemetry"
 	web_utils "github.com/andremelinski/observability/cep/internal/pkg/utils/web"
 	"github.com/andremelinski/observability/cep/internal/usecases"
 	"go.opentelemetry.io/otel"
@@ -17,33 +18,28 @@ type ICityWebHandler interface {
 	CityTemperature(w http.ResponseWriter, r *http.Request)
 }
 
-type OtelInfo struct {
-    RequestNameOTEL    string
-    OTELTracer         trace.Tracer
-}
 
 type LocalTemperatureHandler struct{
 	CepUseCase usecases.ILocationInfo
 	TempUseCase usecases.IWeatherInfo
 	HttpResponse web_utils.IWebResponseHandler
-	otelInfo *OtelInfo
+	otelTrace trace.Tracer
+	OtelTraceHandler opentelemetry.IHandlerTrace
 }
 
-func NewLocalTemperatureHandler (cepUseCase usecases.ILocationInfo,tempUseCase usecases.IWeatherInfo, httpResponse web_utils.IWebResponseHandler, otelInfo *OtelInfo) *LocalTemperatureHandler{
+func NewLocalTemperatureHandler (cepUseCase usecases.ILocationInfo,tempUseCase usecases.IWeatherInfo, httpResponse web_utils.IWebResponseHandler, otelTrace trace.Tracer, otelInfo opentelemetry.IHandlerTrace) *LocalTemperatureHandler{
 	return &LocalTemperatureHandler{
 		cepUseCase,
 		tempUseCase,
 		httpResponse,
+		otelTrace,
 		otelInfo,
 	}
 }
 
 func(lc *LocalTemperatureHandler) CityTemperature(w http.ResponseWriter, r *http.Request){
-	carrier := propagation.HeaderCarrier(r.Header)
-	ctx := r.Context()
-	ctx = otel.GetTextMapPropagator().Extract(ctx, carrier)
+	ctx, span := lc.OtelTraceHandler.StartOTELTrace(r, lc.otelTrace, "CityTemperatureApi")
 
-	ctx, span := lc.otelInfo.OTELTracer.Start(ctx, "Chama externa"+lc.otelInfo.RequestNameOTEL)
 	defer span.End() // span acaba quando toda req acabar para ter o trace
 
 	qs := r.URL.Query()
@@ -60,6 +56,7 @@ func(lc *LocalTemperatureHandler) CityTemperature(w http.ResponseWriter, r *http
 		lc.HttpResponse.RespondWithError(w, http.StatusBadRequest, errors.New("can not find zipcode"))
 		return 
 	}
+	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(r.Header))
 
 	climateInfo, err := lc.TempUseCase.GetTempByPlaceName(info.Localidade)
 

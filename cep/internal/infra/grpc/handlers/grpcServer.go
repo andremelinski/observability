@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/andremelinski/observability/cep/internal/infra/grpc/pb"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -43,7 +44,7 @@ func (g *GrpcServer) CloseGrpcWeatherClient() error {
 }
 
 func (g *GrpcServer) grpcConn() *grpc.ClientConn {
-	conn, err := grpc.NewClient(*g.addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(*g.addr, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithStatsHandler(otelgrpc.NewClientHandler()))
 	if err != nil {
 	  panic(err)
 	}

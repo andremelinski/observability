@@ -4,6 +4,7 @@ import (
 	"github.com/andremelinski/observability/weather/configs"
 	"github.com/andremelinski/observability/weather/internal/infra/grpc/handlers"
 	"github.com/andremelinski/observability/weather/internal/pkg/utils"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 )
 
@@ -14,7 +15,9 @@ func main(){
 		panic(err)
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		 grpc.StatsHandler(otelgrpc.NewServerHandler()),
+	)
 
 	handlerExternalApi := utils.NewHandlerExternalApi()
 	

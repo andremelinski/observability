@@ -17,9 +17,16 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+
+type IHandlerTrace interface{
+	StartOTELTrace(r *http.Request, otelTracer trace.Tracer,traceMessage string) (context.Context, trace.Span)
+}
+
+
 type OtelInfo struct {
     RequestNameOTEL    string
-    OTELTracer         trace.Tracer
+    ServiceName         string
+	CollectorURL	string
 }
 
 type TracerOpenTelemetry struct{
@@ -32,12 +39,12 @@ func NewOpenTelemetry (otelInfo *OtelInfo) *TracerOpenTelemetry{
 	}
 }
 
-func initProvider(serviceName, collectorURL string) (func(context.Context) error, error) {
+func (t *TracerOpenTelemetry) InitProvider() (func(context.Context) error, error) {
 	ctx := context.Background()
 
 	res, err := resource.New(ctx,
 		resource.WithAttributes(
-			semconv.ServiceName(serviceName),
+			semconv.ServiceName(t.otelInfo.ServiceName),
 		),
 	)
 	if err != nil {
@@ -46,7 +53,7 @@ func initProvider(serviceName, collectorURL string) (func(context.Context) error
 
 	ctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
-	conn, err := grpc.NewClient( collectorURL,
+	conn, err := grpc.NewClient( t.otelInfo.CollectorURL,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -69,12 +76,16 @@ func initProvider(serviceName, collectorURL string) (func(context.Context) error
 	return tracerProvider.Shutdown, nil
 }
 
+func (t *TracerOpenTelemetry) InitOTELTrace(traceName string) trace.Tracer {
+	return  otel.Tracer(traceName)
+}
 
-func (t *TracerOpenTelemetry) InitHttpTrace(r *http.Request, traceMessage string) (context.Context, trace.Span) {
+
+func (t *TracerOpenTelemetry) StartOTELTrace(r *http.Request, otelTracer trace.Tracer,traceMessage string) (context.Context, trace.Span) {
 	carrier := propagation.HeaderCarrier(r.Header)
 	ctx := r.Context()
 	ctx = otel.GetTextMapPropagator().Extract(ctx, carrier)
 
 	message := fmt.Sprintf("%s %s", traceMessage, t.otelInfo.RequestNameOTEL)
-	return  t.otelInfo.OTELTracer.Start(ctx, message)
+	return  otelTracer.Start(ctx, message)
 }
