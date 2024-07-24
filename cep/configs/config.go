@@ -6,6 +6,9 @@ type conf struct {
 	GRPC_PORT     int `mapstructure:"GRPC_PORT"`
 	GRPC_SERVER_NAME     string `mapstructure:"GRPC_SERVER_NAME"`
 	HTTP_PORT     int `mapstructure:"HTTP_PORT"`
+	REQUEST_NAME_OTEL string `mapstructure:"REQUEST_NAME_OTEL"`
+	OTEL_SERVICE_NAME string `mapstructure:"OTEL_SERVICE_NAME"`
+	OTEL_EXPORTER_OTLP_ENDPOINT string `mapstructure:"OTEL_EXPORTER_OTLP_ENDPOINT"`
 }
 
 func LoadConfig(path string) (*conf, error) {
