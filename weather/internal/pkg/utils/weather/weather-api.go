@@ -24,9 +24,8 @@ func NewWeatherInfo(apiKey string, handlerExternalApi utils_interface.IHandlerEx
 	}
 }
 
-func (c *WeatherInfo)GetWeatherInfo(place string) (*utils_dto.WeatherApiDTO, error){
-	ctx := context.Background()
-
+func (c *WeatherInfo)GetWeatherInfo(ctx context.Context,place string) (*utils_dto.WeatherApiDTO, error){
+	
 	url := fmt.Sprintf("http://api.weatherapi.com/v1/current.json?key=%s&q=%s", c.apiKey, url.QueryEscape(place))
 	bytes, err := c.handlerExternalApi.CallExternalApi(ctx, 5000, "GET", url)
 

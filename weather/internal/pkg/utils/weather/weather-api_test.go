@@ -31,8 +31,8 @@ func TestSuiteWeather(t *testing.T) {
 
 func (suite *WeatherApiTestSuite)Test_GetWeatherInfo_Throw_Error_Wrong_Place(){
 	suite.mockCallExternalApi.On("CallExternalApi", context.Background(), 1000, "GET", "http://api.weatherapi.com/v1/current.json?key=apiKey&q=cep&aqi=yes").Return(nil, errors.New("no matching location found")).Once()
-
-	output, err := suite.weatherInfo.GetWeatherInfo(suite.mockCep)
+    
+	output, err := suite.weatherInfo.GetWeatherInfo(context.Background(), suite.mockCep)
 
 	suite.Empty(output)
 	suite.EqualError(err, "no matching location found")
@@ -100,7 +100,7 @@ func (suite *WeatherApiTestSuite)Test_GetWeatherInfo_Correct(){
 
 	suite.mockCallExternalApi.On("CallExternalApi", context.Background(), 1000, "GET", "http://api.weatherapi.com/v1/current.json?key=apiKey&q=cep&aqi=yes").Return(bytes, nil).Once()
 
-	output, err := suite.weatherInfo.GetWeatherInfo(suite.mockCep)
+	output, err := suite.weatherInfo.GetWeatherInfo(context.Background(), suite.mockCep)
 
 	suite.NoError(err)
 	suite.Equal(utilDto,output)

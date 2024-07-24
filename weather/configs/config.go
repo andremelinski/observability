@@ -5,6 +5,9 @@ import "github.com/spf13/viper"
 type conf struct {
 	GRPC_PORT     int `mapstructure:"GRPC_PORT"`
 	WEATHER_API_KEY     string `mapstructure:"WEATHER_API_KEY"`
+	REQUEST_NAME_OTEL string `mapstructure:"REQUEST_NAME_OTEL"`
+	OTEL_SERVICE_NAME string `mapstructure:"OTEL_SERVICE_NAME"`
+	OTEL_EXPORTER_OTLP_ENDPOINT string `mapstructure:"OTEL_EXPORTER_OTLP_ENDPOINT"`
 }
 
 func LoadConfig(path string) (*conf, error) {
