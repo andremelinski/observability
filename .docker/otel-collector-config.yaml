@@ -1,32 +1,31 @@
-# como esse dados vao ser recebidos
 receivers:
     otlp:
         protocols:
             grpc:
                 endpoint: 0.0.0.0:4317
-# os dados do receivers vao ser enviados para os exporters, no caso o prometheus
+    zipkin:
+        endpoint: 0.0.0.0:9411
 exporters:
     prometheus:
         endpoint: '0.0.0.0:8889'
 
     logging:
-    # export do opentelemetry pro yeagher
     otlp:
         endpoint: jaeger-all-in-one:4317
         tls:
             insecure: true
-#  como os dados vao ser processados
+    zipkin:
+        endpoint: "http://zipkin:9411/api/v2/spans"
+
 processors:
-    # trabalha de forma async. acumula diversos traces e dai envia
     batch:
 
-# pipelines que tem os receivers e os processeros que a gente config e os exports que sao pra onde essa info deve ser enviada
 service:
     pipelines:
         traces:
-            receivers: [otlp]
+            receivers: [otlp, zipkin]
             processors: [batch]
-            exporters: [logging, otlp]
+            exporters: [logging, otlp, zipkin]
         metrics:
             receivers: [otlp]
             processors: [batch]

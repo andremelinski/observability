@@ -17,7 +17,7 @@ import (
 	usecases_temperature "github.com/andremelinski/observability/cep/internal/usecases/temperature"
 )
 
-func main(){
+func main() {
 	ctx := context.Background()
 	configs, err := configs.LoadConfig(".")
 	if err != nil {
@@ -26,13 +26,13 @@ func main(){
 
 	observability := opentelemetry.NewOpenTelemetry(
 		&opentelemetry.OtelInfo{
-			RequestNameOTEL: configs.REQUEST_NAME_OTEL, 
-			ServiceName: configs.OTEL_SERVICE_NAME, 
-			CollectorURL: configs.OTEL_EXPORTER_OTLP_ENDPOINT,
+			RequestNameOTEL: configs.REQUEST_NAME_OTEL,
+			ServiceName:     configs.OTEL_SERVICE_NAME,
+			CollectorURL:    configs.OTEL_EXPORTER_OTLP_ENDPOINT,
 		},
 	)
 
-	shutdown, err := observability.InitProvider()
+	shutdown, err := observability.InitProvider(ctx)
 
 	if err != nil {
 		log.Fatal(err)
@@ -47,8 +47,8 @@ func main(){
 
 	// ############### app ###############
 	handlerExternalApi := utils.NewHandlerExternalApi()
-	grpcServer :=handlers.NewGrpcServer(configs.GRPC_SERVER_NAME, configs.GRPC_PORT)
-	
+	grpcServer := handlers.NewGrpcServer(configs.GRPC_SERVER_NAME, configs.GRPC_PORT)
+
 	grpcWeatherService := grpc_client.NewWeatherService(grpcServer)
 	tempUseCase := usecases_temperature.NewClimateUseCase(grpcWeatherService)
 

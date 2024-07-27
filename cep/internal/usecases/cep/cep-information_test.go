@@ -1,6 +1,7 @@
 package usecases_cep
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -10,13 +11,12 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type LocationUseCaseTestSuite struct{
+type LocationUseCaseTestSuite struct {
 	suite.Suite
 	locationUseCase *LocationUseCase
-	mockViaCep *mock_utils.CEPInfoMock
-	mockCep string
+	mockViaCep      *mock_utils.CEPInfoMock
+	mockCep         string
 }
-
 
 func (suite *LocationUseCaseTestSuite) SetupSuite() {
 	suite.mockViaCep = new(mock_utils.CEPInfoMock)
@@ -28,43 +28,42 @@ func TestSuiteLocation(t *testing.T) {
 	suite.Run(t, new(LocationUseCaseTestSuite))
 }
 
-func (suite *LocationUseCaseTestSuite)Test_GetLocationInfo_GetCEPInfo_Throw_Error(){
-	
+func (suite *LocationUseCaseTestSuite) Test_GetLocationInfo_GetCEPInfo_Throw_Error() {
 
 	suite.mockViaCep.On("GetCEPInfo", suite.mockCep).Return(nil, errors.New("random error")).Once()
 
-	output, err := suite.locationUseCase.GetLocationInfo(suite.mockCep)
+	output, err := suite.locationUseCase.GetLocationInfo(context.Background(), suite.mockCep)
 
 	suite.Empty(output)
 	suite.EqualError(err, "random error")
 }
 
-func (suite *LocationUseCaseTestSuite)Test_GetLocationInfo_GetCEPInfo_ReturnDTO(){
+func (suite *LocationUseCaseTestSuite) Test_GetLocationInfo_GetCEPInfo_ReturnDTO() {
 	utilDto := &utils_dto.ViaCepDTO{
-		Cep: "0000-000",
-		Logradouro: "Rua XXXXXX",
+		Cep:         "0000-000",
+		Logradouro:  "Rua XXXXXX",
 		Complemento: "",
-		Unidade: "",
-		Bairro: "Boa Vista",
-		Localidade: "Curitiba",
-		UF: "PR",
-		IBGE: "0000000",
-		Gia: "",
-		DDD: "41",
-		Siafi: "0000",
-	}    
+		Unidade:     "",
+		Bairro:      "Boa Vista",
+		Localidade:  "Curitiba",
+		UF:          "PR",
+		IBGE:        "0000000",
+		Gia:         "",
+		DDD:         "41",
+		Siafi:       "0000",
+	}
 	suite.mockViaCep.On("GetCEPInfo", suite.mockCep).Return(utilDto, nil).Once()
 
-	output, err := suite.locationUseCase.GetLocationInfo(suite.mockCep)
+	output, err := suite.locationUseCase.GetLocationInfo(context.Background(), suite.mockCep)
 
 	suite.NoError(err)
 	suite.Equal(&usecases_dto.LocationOutputDTO{
-		Cep: utilDto.Cep, 
-		Logradouro: utilDto.Logradouro, 
+		Cep:         utilDto.Cep,
+		Logradouro:  utilDto.Logradouro,
 		Complemento: utilDto.Complemento,
-		Bairro: utilDto.Bairro,
-		Localidade: utilDto.Localidade,
-		UF: utilDto.UF,
-		DDD: utilDto.DDD, 
-	},output)
+		Bairro:      utilDto.Bairro,
+		Localidade:  utilDto.Localidade,
+		UF:          utilDto.UF,
+		DDD:         utilDto.DDD,
+	}, output)
 }

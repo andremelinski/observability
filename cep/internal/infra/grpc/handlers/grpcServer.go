@@ -49,6 +49,6 @@ func (g *GrpcServer) grpcConn() *grpc.ClientConn {
 	  panic(err)
 	}
 
-	log.Println("conectou")
+	log.Println("grpc conectou")
 	return conn
 }

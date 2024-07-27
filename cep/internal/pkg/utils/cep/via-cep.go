@@ -10,19 +10,17 @@ import (
 	utils_interface "github.com/andremelinski/observability/cep/internal/pkg/utils/interface"
 )
 
-type CepInfo struct{
+type CepInfo struct {
 	handlerExternalApi utils_interface.IHandlerExternalApi
 }
 
-func NewCepInfo(handlerExternalApi utils_interface.IHandlerExternalApi) *CepInfo{
+func NewCepInfo(handlerExternalApi utils_interface.IHandlerExternalApi) *CepInfo {
 	return &CepInfo{
 		handlerExternalApi,
 	}
 }
 
-
-func (c *CepInfo)GetCEPInfo(cep string) (*utils_dto.ViaCepDTO, error){
-	ctx := context.Background()
+func (c *CepInfo) GetCEPInfo(ctx context.Context, cep string) (*utils_dto.ViaCepDTO, error) {
 
 	url := fmt.Sprintf("https://viacep.com.br/ws/%s/json/", cep)
 
@@ -30,7 +28,7 @@ func (c *CepInfo)GetCEPInfo(cep string) (*utils_dto.ViaCepDTO, error){
 	if err != nil {
 		return nil, err
 	}
-	
+
 	data := &utils_dto.ViaCepDTO{}
 	json.Unmarshal(bytes, data)
 

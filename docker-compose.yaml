@@ -9,7 +9,21 @@ services:
             - '14250'
         networks:
             - mynetwork
-    # fica pegando as metricas do collector para armazenar e expor pelo granafa
+
+    zipkin:
+        image: openzipkin/zipkin:latest
+        restart: always
+        ports:
+        - "9411:9411"
+        networks:
+            - mynetwork        
+        healthcheck:
+            test: ["CMD-SHELL", "wget --spider --no-verbose --tries=1 --timeout=5 http://localhost:9411/health || exit 1"]
+            start_interval: 2s
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
     prometheus:
         container_name: prometheus
         image: prom/prometheus:latest
@@ -20,11 +34,10 @@ services:
             - '9090:9090'
         networks:
             - mynetwork
-    # prometheus vai ficar observando o collector
+
     otel-collector:
         image: otel/opentelemetry-collector:latest
         restart: always
-        # config do opentelemetry fala por onde eles serao recebidos e processados e pra onde serao enviados
         command: ['--config=/etc/otel-collector-config.yaml']
         volumes:
             - ./.docker/otel-collector-config.yaml:/etc/otel-collector-config.yaml
@@ -32,6 +45,7 @@ services:
             - '8888:8888' # Prometheus metrics exposed by the collector
             - '8889:8889' # Prometheus exporter metrics
             - '4317:4317' # OTLP gRPC receiver -> porta principal
+            - '55679:55679' # zpages extension
         networks:
             - mynetwork
 
@@ -65,6 +79,7 @@ services:
             - jaeger-all-in-one
             - prometheus
             - otel-collector
+            - zipkin
         networks:
             - mynetwork
     weather:
@@ -83,6 +98,7 @@ services:
             - jaeger-all-in-one
             - prometheus
             - otel-collector
+            - zipkin
             - cep
         networks:
             - mynetwork
