@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/andremelinski/observability/cep/internal/infra/web/handlers"
+	"github.com/andremelinski/observability/cep/internal/infra/web/webserver/handlers"
 )
 
 type RouteHandler struct {
@@ -12,18 +12,18 @@ type RouteHandler struct {
 	HandlerFunc http.HandlerFunc
 }
 
+// struct recebe a interface que possui os endpoints desse usecase + middlewares
 type WebRouter struct {
-	CityWebHandler       handlers.ICityWebHandler
+	CityWebHandler handlers.CityWebHandlerInterface
 }
 
 func NewWebRouter(
-	cityHandlers handlers.ICityWebHandler,
+	cityHandlers handlers.CityWebHandlerInterface,
 ) *WebRouter {
 	return &WebRouter{
 		cityHandlers,
 	}
 }
-
 
 // metodo para cadastrar todas as rotas
 func (s *WebRouter) BuildHandlers() []RouteHandler {

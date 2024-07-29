@@ -6,9 +6,6 @@ receivers:
     zipkin:
         endpoint: 0.0.0.0:9411
 exporters:
-    prometheus:
-        endpoint: '0.0.0.0:8889'
-
     logging:
     otlp:
         endpoint: jaeger-all-in-one:4317
@@ -29,4 +26,4 @@ service:
         metrics:
             receivers: [otlp]
             processors: [batch]
-            exporters: [logging, prometheus]
+            exporters: [logging]

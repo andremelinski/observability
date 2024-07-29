@@ -5,15 +5,15 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type CEPInfoMock struct {
+type WeatherInfoMock struct {
 	mock.Mock
 }
 
 // GetCEPInfo implements utils.ICepInfoAPI.
-func (m *CEPInfoMock) GetCEPInfo(cep string) (*utils_dto.ViaCepDTO, error) {
-	args := m.Called(cep)
+func (m *WeatherInfoMock) GetWeatherInfo(place string) (*utils_dto.WeatherApiDTO, error) {
+	args := m.Called(place)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*utils_dto.ViaCepDTO), args.Error(1)
+	return args.Get(0).(*utils_dto.WeatherApiDTO), args.Error(1)
 }
