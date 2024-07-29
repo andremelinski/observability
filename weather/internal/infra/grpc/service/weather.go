@@ -10,37 +10,38 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-type WeatherService struct{
+type WeatherService struct {
 	pb.UnimplementedWeatherServiceServer
-	weatherInfo utils_interface.IClimateInfoAPI
-	otelTrace trace.Tracer
+	weatherInfo      utils_interface.IClimateInfoAPI
+	otelTrace        trace.Tracer
 	OtelTraceHandler opentelemetry.IHandlerTrace
 }
 
-
-func NewWeatherService(weatherInfo utils_interface.IClimateInfoAPI, otelTrace trace.Tracer, otelInfo opentelemetry.IHandlerTrace) *WeatherService{
+func NewWeatherService(weatherInfo utils_interface.IClimateInfoAPI, otelTrace trace.Tracer, otelInfo opentelemetry.IHandlerTrace) *WeatherService {
 	return &WeatherService{
-		weatherInfo: weatherInfo,
-		otelTrace: otelTrace,
+		weatherInfo:      weatherInfo,
+		otelTrace:        otelTrace,
 		OtelTraceHandler: otelInfo,
 	}
 }
 
-func(ws *WeatherService) GetLocationTemperature(stream pb.WeatherService_GetLocationTemperatureServer) error {
+func (ws *WeatherService) GetLocationTemperature(stream pb.WeatherService_GetLocationTemperatureServer) error {
 	ctx := context.Background()
 
 	ctx, span := ws.OtelTraceHandler.StartOTELTrace(ctx, ws.otelTrace, "weatherTraceApi")
 	defer span.End() // span acaba quando toda req acabar para ter o trace
 
-
 	location, err := stream.Recv()
 
-	if err == io.EOF{
-		return nil
-	}
 	if err != nil {
+
+		if err == io.EOF {
+			return nil
+		}
+
 		return err
 	}
+
 	weatherInfo, err := ws.weatherInfo.GetWeatherInfo(ctx, location.Place)
 	if err != nil {
 		return err
@@ -55,5 +56,5 @@ func(ws *WeatherService) GetLocationTemperature(stream pb.WeatherService_GetLoca
 	if err != nil {
 		return err
 	}
-	return nil 
+	return nil
 }

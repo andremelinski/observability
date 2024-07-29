@@ -12,8 +12,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-
-func main(){
+func main() {
 	ctx := context.Background()
 	configs, err := configs.LoadConfig(".")
 	if err != nil {
@@ -22,9 +21,9 @@ func main(){
 
 	observability := opentelemetry.NewOpenTelemetry(
 		&opentelemetry.OtelInfo{
-			RequestNameOTEL: configs.REQUEST_NAME_OTEL, 
-			ServiceName: configs.OTEL_SERVICE_NAME, 
-			CollectorURL: configs.OTEL_EXPORTER_OTLP_ENDPOINT,
+			RequestNameOTEL: configs.REQUEST_NAME_OTEL,
+			ServiceName:     configs.OTEL_SERVICE_NAME,
+			CollectorURL:    configs.OTEL_EXPORTER_OTLP_ENDPOINT,
 		},
 	)
 
@@ -41,13 +40,13 @@ func main(){
 
 	tracer := observability.InitOTELTrace("weather -ms-tracer")
 
-// ############### app ###############
+	// ############### app ###############
 	grpcServer := grpc.NewServer(
-		 grpc.StatsHandler(otelgrpc.NewServerHandler()),
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 	)
 
 	handlerExternalApi := utils.NewHandlerExternalApi()
-	
+
 	handlers.NewGrpcResgisters(grpcServer, configs.WEATHER_API_KEY, handlerExternalApi, tracer, observability).CreateGrpcWeatherRegisters()
 	handlers.NewGrpcServer(grpcServer, configs.GRPC_PORT).Start()
 }
