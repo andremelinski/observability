@@ -24,16 +24,16 @@ services:
             timeout: 5s
             retries: 3
 
-    prometheus:
-        container_name: prometheus
-        image: prom/prometheus:latest
-        restart: always
-        volumes:
-            - ./.docker/prometheus.yaml:/etc/prometheus/prometheus.yml
-        ports:
-            - '9090:9090'
-        networks:
-            - mynetwork
+    # prometheus:
+    #     container_name: prometheus
+    #     image: prom/prometheus:latest
+    #     restart: always
+    #     volumes:
+    #         - ./.docker/prometheus.yaml:/etc/prometheus/prometheus.yml
+    #     ports:
+    #         - '9090:9090'
+    #     networks:
+    #         - mynetwork
 
     otel-collector:
         image: otel/opentelemetry-collector:latest
@@ -49,16 +49,16 @@ services:
         networks:
             - mynetwork
 
-    grafana:
-        container_name: grafana
-        image: grafana/grafana:latest
-        restart: always
-        ports:
-            - '3001:3000'
-        depends_on:
-            - prometheus
-        networks:
-            - mynetwork
+    # grafana:
+    #     container_name: grafana
+    #     image: grafana/grafana:latest
+    #     restart: always
+    #     ports:
+    #         - '3001:3000'
+    #     depends_on:
+    #         - prometheus
+    #     networks:
+    #         - mynetwork
 
     cep:
         container_name: cep
@@ -67,10 +67,10 @@ services:
         env_file:
             - ./cep/.env
         ports:
-            - ${HTTP_PORT}:${HTTP_PORT}
+            - 8080:8080
         depends_on:
             - jaeger-all-in-one
-            - prometheus
+            # - prometheus
             - otel-collector
             - zipkin
         networks:
@@ -81,12 +81,11 @@ services:
             context: ./weather
         env_file:
             - ./weather/.env
-            - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
         ports:
-            - ${GRPC_PORT}:${GRPC_PORT}
+            - 50051:50051
         depends_on:
             - jaeger-all-in-one
-            - prometheus
+            # - prometheus
             - otel-collector
             - zipkin
             - cep
