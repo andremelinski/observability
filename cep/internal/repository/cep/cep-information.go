@@ -1,4 +1,4 @@
-package usecases
+package cep_repository
 
 import utils_interface "github.com/andremelinski/observability/cep/internal/pkg/utils/interface"
 
@@ -12,17 +12,17 @@ type LocationOutputDTO struct {
 	DDD         string `json:"ddd"`
 }
 
-type LocationUseCase struct {
+type LocationRepository struct {
 	cepInfo utils_interface.ICepInfoAPI
 }
 
-func NewLocationUseCase(cepInfo utils_interface.ICepInfoAPI) *LocationUseCase {
-	return &LocationUseCase{
+func NewLocationRepository(cepInfo utils_interface.ICepInfoAPI) *LocationRepository {
+	return &LocationRepository{
 		cepInfo,
 	}
 }
 
-func (l *LocationUseCase) GetLocationInfo(cep string) (*LocationOutputDTO, error) {
+func (l *LocationRepository) GetLocationInfo(cep string) (*LocationOutputDTO, error) {
 	cepnfo, err := l.cepInfo.GetCEPInfo(cep)
 
 	if err != nil {

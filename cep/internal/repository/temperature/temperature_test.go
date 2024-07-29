@@ -1,4 +1,4 @@
-package usecases
+package temperature_repository
 
 import (
 	"errors"
@@ -9,34 +9,34 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type TemperatureUseCaseTestSuite struct {
+type TemperatureRepositoryTestSuite struct {
 	suite.Suite
-	temperatureUseCase *TemperatureUseCase
-	mockWeatherApi     *mock_utils.WeatherInfoMock
-	mockCep            string
+	temperatureRepository *TemperatureRepository
+	mockWeatherApi        *mock_utils.WeatherInfoMock
+	mockCep               string
 }
 
-func (suite *TemperatureUseCaseTestSuite) SetupSuite() {
+func (suite *TemperatureRepositoryTestSuite) SetupSuite() {
 	suite.mockWeatherApi = new(mock_utils.WeatherInfoMock)
-	suite.temperatureUseCase = NewClimateUseCase(suite.mockWeatherApi)
+	suite.temperatureRepository = NewClimateRepository(suite.mockWeatherApi)
 	suite.mockCep = "cep"
 }
 
 func TestSuiteWeather(t *testing.T) {
-	suite.Run(t, new(TemperatureUseCaseTestSuite))
+	suite.Run(t, new(TemperatureRepositoryTestSuite))
 }
 
-func (suite *TemperatureUseCaseTestSuite) Test_GetLocationInfo_GetCEPInfo_Throw_Error() {
+func (suite *TemperatureRepositoryTestSuite) Test_GetLocationInfo_GetCEPInfo_Throw_Error() {
 
 	suite.mockWeatherApi.On("GetWeatherInfo", suite.mockCep).Return(nil, errors.New("random error")).Once()
 
-	output, err := suite.temperatureUseCase.GetTempByPlaceName(suite.mockCep)
+	output, err := suite.temperatureRepository.GetTempByPlaceName(suite.mockCep)
 
 	suite.Empty(output)
 	suite.EqualError(err, "random error")
 }
 
-func (suite *TemperatureUseCaseTestSuite) Test_GetLocationInfo_GetCEPInfo_ReturnDTO() {
+func (suite *TemperatureRepositoryTestSuite) Test_GetLocationInfo_GetCEPInfo_ReturnDTO() {
 	utilDto := &utils_dto.WeatherApiDTO{
 		Location: utils_dto.Location{
 			Name:           "Tokyo",
@@ -96,7 +96,7 @@ func (suite *TemperatureUseCaseTestSuite) Test_GetLocationInfo_GetCEPInfo_Return
 	}
 	suite.mockWeatherApi.On("GetWeatherInfo", suite.mockCep).Return(utilDto, nil).Once()
 
-	output, err := suite.temperatureUseCase.GetTempByPlaceName(suite.mockCep)
+	output, err := suite.temperatureRepository.GetTempByPlaceName(suite.mockCep)
 
 	suite.NoError(err)
 	suite.Equal(&TempDTO{

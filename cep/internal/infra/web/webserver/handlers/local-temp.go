@@ -11,15 +11,13 @@ import (
 )
 
 type LocalTemperatureHandler struct {
-	CepUseCase   usecases.ILocationInfo
-	TempUseCase  usecases.IWeatherInfo
-	HttpResponse web.IWebResponseHandler
+	CepInfoUseCase usecases.IClimateLocationInfoUseCase
+	HttpResponse   web.IWebResponseHandler
 }
 
-func NewLocalTemperatureHandler(cepUseCase usecases.ILocationInfo, tempUseCase usecases.IWeatherInfo, httpResponse web.IWebResponseHandler) *LocalTemperatureHandler {
+func NewLocalTemperatureHandler(cepInfoUseCase usecases.IClimateLocationInfoUseCase, httpResponse web.IWebResponseHandler) *LocalTemperatureHandler {
 	return &LocalTemperatureHandler{
-		cepUseCase,
-		tempUseCase,
+		cepInfoUseCase,
 		httpResponse,
 	}
 }
@@ -33,22 +31,14 @@ func (lc *LocalTemperatureHandler) CityTemperature(w http.ResponseWriter, r *htt
 		return
 	}
 
-	info, err := lc.CepUseCase.GetLocationInfo(zipStr)
+	info, err := lc.CepInfoUseCase.GetCityTemp(zipStr)
 	if err != nil {
 		fmt.Println(err)
 		lc.HttpResponse.RespondWithError(w, http.StatusBadRequest, errors.New("can not find zipcode"))
 		return
 	}
 
-	climateInfo, err := lc.TempUseCase.GetTempByPlaceName(info.Localidade)
-
-	if err != nil {
-		fmt.Println(err)
-		lc.HttpResponse.RespondWithError(w, http.StatusBadRequest, errors.New("can not find zipcode"))
-		return
-	}
-
-	lc.HttpResponse.Respond(w, http.StatusOK, climateInfo)
+	lc.HttpResponse.Respond(w, http.StatusOK, info)
 }
 
 func validateInput(zipcode string) error {

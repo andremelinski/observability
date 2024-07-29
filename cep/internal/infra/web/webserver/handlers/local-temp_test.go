@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	mock_usecase "github.com/andremelinski/observability/cep/internal/pkg/mock/usecase"
+	mock_usecases "github.com/andremelinski/observability/cep/internal/pkg/mock/usecases"
 	"github.com/andremelinski/observability/cep/internal/pkg/web"
 	"github.com/andremelinski/observability/cep/internal/usecases"
 	"github.com/go-chi/chi"
@@ -18,8 +18,7 @@ type LocalTempHandlerTestSuite struct {
 	suite.Suite
 	router              *chi.Mux
 	localTempHandler    *LocalTemperatureHandler
-	mockLocationUseCase *mock_usecase.LocationUseCaseMock
-	mockTempUsecase     *mock_usecase.TemperatureUseCaseMock
+	mockLocationUseCase *mock_usecases.GetCityTempInfoUseCaseMock
 	mockCep             string
 }
 
@@ -28,11 +27,10 @@ func (suite *LocalTempHandlerTestSuite) SetupSuite() {
 
 	suite.router = chi.NewRouter()
 
-	suite.mockLocationUseCase = new(mock_usecase.LocationUseCaseMock)
-	suite.mockTempUsecase = new(mock_usecase.TemperatureUseCaseMock)
+	suite.mockLocationUseCase = new(mock_usecases.GetCityTempInfoUseCaseMock)
 	webHandler := web.NewWebResponseHandler()
 
-	suite.localTempHandler = NewLocalTemperatureHandler(suite.mockLocationUseCase, suite.mockTempUsecase, webHandler)
+	suite.localTempHandler = NewLocalTemperatureHandler(suite.mockLocationUseCase, webHandler)
 }
 
 func TestSuiteLocation(t *testing.T) {
@@ -40,17 +38,9 @@ func TestSuiteLocation(t *testing.T) {
 }
 
 func (suite *LocalTempHandlerTestSuite) Test_CityTemperature() {
-	locationOutputDTO := &usecases.LocationOutputDTO{
-		Cep:         suite.mockCep,
-		Logradouro:  "XX",
-		Complemento: "XX",
-		Bairro:      "XX",
-		Localidade:  "XX",
-		UF:          "XX",
-		DDD:         "XX",
-	}
 
-	tempDto := &usecases.TempDTO{
+	cityInfoDto := &usecases.ClimateLocationInfoUseCaseDTO{
+		City:       "Curitiba",
 		Celsius:    9.3,
 		Fahrenheit: 48.7,
 		Kelvin:     282.3,
@@ -70,8 +60,8 @@ func (suite *LocalTempHandlerTestSuite) Test_CityTemperature() {
 		suite.Assert().Equal("{\"message\":\"invalid zipcode\"}\n", rr.Body.String())
 	})
 
-	suite.Run("Should send bad request when GetLocationInfo fail", func() {
-		suite.mockLocationUseCase.On("GetLocationInfo", suite.mockCep).Return(nil, errors.New("random error")).Once()
+	suite.Run("Should send bad request when GetCityTemp fail", func() {
+		suite.mockLocationUseCase.On("GetCityTemp", suite.mockCep).Return(nil, errors.New("random error")).Once()
 
 		req, err := http.NewRequest("GET", fmt.Sprintf("/?zipcode=%s", suite.mockCep), nil)
 
@@ -86,26 +76,8 @@ func (suite *LocalTempHandlerTestSuite) Test_CityTemperature() {
 		suite.Assert().Equal("{\"message\":\"can not find zipcode\"}\n", rr.Body.String())
 	})
 
-	suite.Run("Should send bad request when GetLocationInfo fail", func() {
-		suite.mockLocationUseCase.On("GetLocationInfo", suite.mockCep).Return(locationOutputDTO, nil).Once()
-		suite.mockTempUsecase.On("GetTempByPlaceName", locationOutputDTO.Localidade).Return(nil, errors.New("random error")).Once()
-
-		req, err := http.NewRequest("GET", fmt.Sprintf("/?zipcode=%s", suite.mockCep), nil)
-
-		suite.Assert().NoError(err)
-		// Criando um ResponseRecorder para simular a resposta HTTP
-		rr := httptest.NewRecorder()
-
-		// Chamando a função Hello do handler
-		suite.localTempHandler.CityTemperature(rr, req)
-
-		suite.Assert().Equal(http.StatusBadRequest, rr.Code)
-		suite.Assert().Equal("{\"message\":\"can not find zipcode\"}\n", rr.Body.String())
-	})
-
-	suite.Run("Should send bad request when GetLocationInfo fail", func() {
-		suite.mockLocationUseCase.On("GetLocationInfo", suite.mockCep).Return(locationOutputDTO, nil).Once()
-		suite.mockTempUsecase.On("GetTempByPlaceName", locationOutputDTO.Localidade).Return(tempDto, nil).Once()
+	suite.Run("Should send 200 ", func() {
+		suite.mockLocationUseCase.On("GetCityTemp", suite.mockCep).Return(cityInfoDto, nil).Once()
 
 		req, err := http.NewRequest("GET", fmt.Sprintf("/?zipcode=%s", suite.mockCep), nil)
 

@@ -1,4 +1,4 @@
-package usecases
+package cep_repository
 
 import (
 	"errors"
@@ -9,34 +9,34 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type LocationUseCaseTestSuite struct {
+type LocationRepositoryTestSuite struct {
 	suite.Suite
-	locationUseCase *LocationUseCase
-	mockViaCep      *mock_utils.CEPInfoMock
-	mockCep         string
+	locationRepository *LocationRepository
+	mockViaCep         *mock_utils.CEPInfoMock
+	mockCep            string
 }
 
-func (suite *LocationUseCaseTestSuite) SetupSuite() {
+func (suite *LocationRepositoryTestSuite) SetupSuite() {
 	suite.mockViaCep = new(mock_utils.CEPInfoMock)
-	suite.locationUseCase = NewLocationUseCase(suite.mockViaCep)
+	suite.locationRepository = NewLocationRepository(suite.mockViaCep)
 	suite.mockCep = "cep"
 }
 
 func TestSuiteLocation(t *testing.T) {
-	suite.Run(t, new(LocationUseCaseTestSuite))
+	suite.Run(t, new(LocationRepositoryTestSuite))
 }
 
-func (suite *LocationUseCaseTestSuite) Test_GetLocationInfo_GetCEPInfo_Throw_Error() {
+func (suite *LocationRepositoryTestSuite) Test_GetLocationInfo_GetCEPInfo_Throw_Error() {
 
 	suite.mockViaCep.On("GetCEPInfo", suite.mockCep).Return(nil, errors.New("random error")).Once()
 
-	output, err := suite.locationUseCase.GetLocationInfo(suite.mockCep)
+	output, err := suite.locationRepository.GetLocationInfo(suite.mockCep)
 
 	suite.Empty(output)
 	suite.EqualError(err, "random error")
 }
 
-func (suite *LocationUseCaseTestSuite) Test_GetLocationInfo_GetCEPInfo_ReturnDTO() {
+func (suite *LocationRepositoryTestSuite) Test_GetLocationInfo_GetCEPInfo_ReturnDTO() {
 	utilDto := &utils_dto.ViaCepDTO{
 		Cep:         "0000-000",
 		Logradouro:  "Rua XXXXXX",
@@ -52,7 +52,7 @@ func (suite *LocationUseCaseTestSuite) Test_GetLocationInfo_GetCEPInfo_ReturnDTO
 	}
 	suite.mockViaCep.On("GetCEPInfo", suite.mockCep).Return(utilDto, nil).Once()
 
-	output, err := suite.locationUseCase.GetLocationInfo(suite.mockCep)
+	output, err := suite.locationRepository.GetLocationInfo(suite.mockCep)
 
 	suite.NoError(err)
 	suite.Equal(&LocationOutputDTO{

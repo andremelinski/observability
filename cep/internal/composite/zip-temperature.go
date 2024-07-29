@@ -4,6 +4,8 @@ import (
 	"github.com/andremelinski/observability/cep/internal/infra/web/webserver/handlers"
 	"github.com/andremelinski/observability/cep/internal/pkg/utils"
 	"github.com/andremelinski/observability/cep/internal/pkg/web"
+	cep_repository "github.com/andremelinski/observability/cep/internal/repository/cep"
+	temperature_repository "github.com/andremelinski/observability/cep/internal/repository/temperature"
 	"github.com/andremelinski/observability/cep/internal/usecases"
 )
 
@@ -15,8 +17,10 @@ func TemperatureLocationComposite(apiKey string) *handlers.LocalTemperatureHandl
 	weatherApi := utils.NewWeatherInfo(apiKey, handlerExternalApi)
 	viaCep := utils.NewCepInfo(handlerExternalApi)
 
-	cepUsecase := usecases.NewLocationUseCase(viaCep)
-	tempUseCase := usecases.NewClimateUseCase(weatherApi)
+	tempRepo := temperature_repository.NewClimateRepository(weatherApi)
+	cepRepo := cep_repository.NewLocationRepository(viaCep)
 
-	return handlers.NewLocalTemperatureHandler(cepUsecase, tempUseCase, httpHandler)
+	cepUsecase := usecases.NewClimateLocationInfoUseCase(cepRepo, tempRepo)
+
+	return handlers.NewLocalTemperatureHandler(cepUsecase, httpHandler)
 }

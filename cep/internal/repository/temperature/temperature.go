@@ -1,25 +1,24 @@
-package usecases
+package temperature_repository
 
 import utils_interface "github.com/andremelinski/observability/cep/internal/pkg/utils/interface"
 
 type TempDTO struct {
-	Celsius    float64 `json:"temp_C"`
-	Fahrenheit float64 `json:"temp_F"`
-	Kelvin     float64 `json:"temp_K"`
+	Celsius    float64
+	Fahrenheit float64
+	Kelvin     float64
 }
 
-// retornar as temperaturas e formata-lás em: Celsius, Fahrenheit, Kelvin.
-type TemperatureUseCase struct {
+type TemperatureRepository struct {
 	WeatheInfo utils_interface.IClimateInfoAPI
 }
 
-func NewClimateUseCase(climateApi utils_interface.IClimateInfoAPI) *TemperatureUseCase {
-	return &TemperatureUseCase{
+func NewClimateRepository(climateApi utils_interface.IClimateInfoAPI) *TemperatureRepository {
+	return &TemperatureRepository{
 		climateApi,
 	}
 }
 
-func (l *TemperatureUseCase) GetTempByPlaceName(name string) (*TempDTO, error) {
+func (l *TemperatureRepository) GetTempByPlaceName(name string) (*TempDTO, error) {
 	weatherInfo, err := l.WeatheInfo.GetWeatherInfo(name)
 
 	if err != nil {
