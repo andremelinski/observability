@@ -36,7 +36,7 @@ func main() {
 		}
 	}()
 
-	tracer := observability.InitOTELTrace("cep-ms-tracer")
+	tracer := observability.InitOTELTrace(configs.OTEL_SERVICE_NAME)
 
 	tempHandler := composite.TemperatureLocationComposite(configs.WEATHER_API_KEY)
 

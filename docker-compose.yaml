@@ -48,21 +48,21 @@ services:
             - zipkin
         networks:
             - mynetwork
-    weather:
-        container_name: weather
-        build:
-            context: ./weather
-        env_file:
-            - ./weather/.env
-        ports:
-            - 50051:50051
-        depends_on:
-            - jaeger-all-in-one
-            - otel-collector
-            - zipkin
-            - cep
-        networks:
-            - mynetwork
+    # weather:
+    #     container_name: weather
+    #     build:
+    #         context: ./weather
+    #     env_file:
+    #         - ./weather/.env
+    #     ports:
+    #         - 50051:50051
+    #     depends_on:
+    #         - jaeger-all-in-one
+    #         - otel-collector
+    #         - zipkin
+    #         - cep
+    #     networks:
+    #         - mynetwork
 networks:
     mynetwork:
         driver: bridge
