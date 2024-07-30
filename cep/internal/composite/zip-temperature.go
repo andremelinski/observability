@@ -22,7 +22,7 @@ func TemperatureLocationComposite(observability *opentelemetry.TracerOpenTelemet
 	tempRepo := temperature_repository.NewClimateRepository(weatherApi)
 	cepRepo := cep_repository.NewLocationRepository(viaCep)
 
-	cepUsecase := usecases.NewClimateLocationInfoUseCase(cepRepo, tempRepo)
+	cepUsecase := usecases.NewClimateLocationInfoUseCase(cepRepo, tempRepo, tracer, observability)
 
-	return handlers.NewLocalTemperatureHandler(cepUsecase, httpHandler, tracer, observability)
+	return handlers.NewLocalTemperatureHandler(cepUsecase, httpHandler, observability)
 }

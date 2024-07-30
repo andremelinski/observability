@@ -18,7 +18,8 @@ import (
 )
 
 type IHandlerTrace interface {
-	StartOTELTrace(r *http.Request, otelTracer trace.Tracer, traceMessage string) (context.Context, trace.Span)
+	StartOTELPropagator(r *http.Request) context.Context
+	StartOTELTrace(ctx context.Context, otelTracer trace.Tracer, traceMessage string) (context.Context, trace.Span)
 }
 
 type OtelInfo struct {
@@ -77,10 +78,15 @@ func (t *TracerOpenTelemetry) InitOTELTrace(traceName string) trace.Tracer {
 	return otel.Tracer(traceName)
 }
 
-func (t *TracerOpenTelemetry) StartOTELTrace(r *http.Request, otelTracer trace.Tracer, traceMessage string) (context.Context, trace.Span) {
+func (t *TracerOpenTelemetry) StartOTELPropagator(r *http.Request) context.Context {
 	carrier := propagation.HeaderCarrier(r.Header)
 	ctx := r.Context()
 	ctx = otel.GetTextMapPropagator().Extract(ctx, carrier)
+
+	return ctx
+}
+
+func (t *TracerOpenTelemetry) StartOTELTrace(ctx context.Context, otelTracer trace.Tracer, traceMessage string) (context.Context, trace.Span) {
 
 	message := fmt.Sprintf("%s %s", traceMessage, t.otelInfo.RequestNameOTEL)
 	return otelTracer.Start(ctx, message)

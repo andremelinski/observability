@@ -9,28 +9,24 @@ import (
 	"github.com/andremelinski/observability/cep/internal/infra/opentelemetry"
 	"github.com/andremelinski/observability/cep/internal/pkg/web"
 	"github.com/andremelinski/observability/cep/internal/usecases"
-	"go.opentelemetry.io/otel/trace"
 )
 
 type LocalTemperatureHandler struct {
 	CepInfoUseCase   usecases.IClimateLocationInfoUseCase
 	HttpResponse     web.IWebResponseHandler
-	otelTrace        trace.Tracer
 	OtelTraceHandler opentelemetry.IHandlerTrace
 }
 
-func NewLocalTemperatureHandler(cepInfoUseCase usecases.IClimateLocationInfoUseCase, httpResponse web.IWebResponseHandler, otelTrace trace.Tracer, otelInfo opentelemetry.IHandlerTrace) *LocalTemperatureHandler {
+func NewLocalTemperatureHandler(cepInfoUseCase usecases.IClimateLocationInfoUseCase, httpResponse web.IWebResponseHandler, otelInfo opentelemetry.IHandlerTrace) *LocalTemperatureHandler {
 	return &LocalTemperatureHandler{
 		cepInfoUseCase,
 		httpResponse,
-		otelTrace,
 		otelInfo,
 	}
 }
 
 func (lc *LocalTemperatureHandler) CityTemperature(w http.ResponseWriter, r *http.Request) {
-	ctx, span := lc.OtelTraceHandler.StartOTELTrace(r, lc.otelTrace, "CityTemperatureMs")
-	defer span.End() // span acaba quando toda req acabar para ter o trace
+	ctx := lc.OtelTraceHandler.StartOTELPropagator(r)
 
 	qs := r.URL.Query()
 	zipStr := qs.Get("zipcode")
