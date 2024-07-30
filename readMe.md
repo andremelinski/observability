@@ -1,4 +1,4 @@
-# Go Expert Challenge - Rate Limiter
+# Observabilidade
 
 Implementação de observabilidade utilizando Opentelemetry e zipkin para monitorar a execução dos serviços que buscam a informação da localização e temperatura do usuario a partir do cep enviado pelo query string
 
