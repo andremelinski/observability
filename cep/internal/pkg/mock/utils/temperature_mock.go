@@ -1,6 +1,8 @@
 package mock_utils
 
 import (
+	"context"
+
 	utils_dto "github.com/andremelinski/observability/cep/internal/pkg/utils/dto"
 	"github.com/stretchr/testify/mock"
 )
@@ -10,8 +12,8 @@ type WeatherInfoMock struct {
 }
 
 // GetCEPInfo implements utils.ICepInfoAPI.
-func (m *WeatherInfoMock) GetWeatherInfo(place string) (*utils_dto.WeatherApiDTO, error) {
-	args := m.Called(place)
+func (m *WeatherInfoMock) GetWeatherInfo(ctx context.Context, place string) (*utils_dto.WeatherApiDTO, error) {
+	args := m.Called(ctx, place)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}

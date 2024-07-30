@@ -36,9 +36,7 @@ func main() {
 		}
 	}()
 
-	tracer := observability.InitOTELTrace(configs.OTEL_SERVICE_NAME)
-
-	tempHandler := composite.TemperatureLocationComposite(configs.WEATHER_API_KEY)
+	tempHandler := composite.TemperatureLocationComposite(observability, configs.WEATHER_API_KEY)
 
 	webRouter := web_infra.NewWebRouter(tempHandler)
 	webServer := web_infra.NewWebServer(

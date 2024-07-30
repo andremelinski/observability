@@ -29,9 +29,10 @@ func TestSuiteViacep(t *testing.T) {
 }
 
 func (suite *ViaCepCaseTestSuite) Test_GetWeatherInfo_Throw_Error_Wrong_Place() {
-	suite.mockCallExternalApi.On("CallExternalApi", context.Background(), 3000, "GET", "https://viacep.com.br/ws/cep/json/").Return(nil, errors.New("random error")).Once()
+	ctx := context.Background()
+	suite.mockCallExternalApi.On("CallExternalApi", ctx, 3000, "GET", "https://viacep.com.br/ws/cep/json/").Return(nil, errors.New("random error")).Once()
 
-	output, err := suite.cepInfo.GetCEPInfo(suite.mockCep)
+	output, err := suite.cepInfo.GetCEPInfo(ctx, suite.mockCep)
 
 	suite.Empty(output)
 	suite.EqualError(err, "random error")
@@ -53,9 +54,10 @@ func (suite *ViaCepCaseTestSuite) Test_GetLocationInfo_GetCEPInfo_ReturnDTO() {
 	}
 	bytes, _ := json.Marshal(utilDto)
 
-	suite.mockCallExternalApi.On("CallExternalApi", context.Background(), 3000, "GET", "https://viacep.com.br/ws/cep/json/").Return(bytes, nil).Once()
+	ctx := context.Background()
+	suite.mockCallExternalApi.On("CallExternalApi", ctx, 3000, "GET", "https://viacep.com.br/ws/cep/json/").Return(bytes, nil).Once()
 
-	output, err := suite.cepInfo.GetCEPInfo(suite.mockCep)
+	output, err := suite.cepInfo.GetCEPInfo(ctx, suite.mockCep)
 
 	suite.NoError(err)
 	suite.Equal(utilDto, output)

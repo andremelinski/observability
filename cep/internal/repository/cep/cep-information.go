@@ -1,6 +1,10 @@
 package cep_repository
 
-import utils_interface "github.com/andremelinski/observability/cep/internal/pkg/utils/interface"
+import (
+	"context"
+
+	utils_interface "github.com/andremelinski/observability/cep/internal/pkg/utils/interface"
+)
 
 type LocationOutputDTO struct {
 	Cep         string `json:"cep"`
@@ -22,8 +26,8 @@ func NewLocationRepository(cepInfo utils_interface.ICepInfoAPI) *LocationReposit
 	}
 }
 
-func (l *LocationRepository) GetLocationInfo(cep string) (*LocationOutputDTO, error) {
-	cepnfo, err := l.cepInfo.GetCEPInfo(cep)
+func (l *LocationRepository) GetLocationInfo(ctx context.Context, cep string) (*LocationOutputDTO, error) {
+	cepnfo, err := l.cepInfo.GetCEPInfo(ctx, cep)
 
 	if err != nil {
 		return nil, err

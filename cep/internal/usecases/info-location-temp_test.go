@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -30,10 +31,10 @@ func TestSuiteLocation(t *testing.T) {
 }
 
 func (suite *ClimateLocationInfoUseCaseTestSuite) Test_GetLocationInfo_GetCEPInfo_Throw_Error() {
+	ctx := context.Background()
+	suite.mockCepRepo.On("GetLocationInfo", ctx, suite.mockCep).Return(nil, errors.New("random error")).Once()
 
-	suite.mockCepRepo.On("GetLocationInfo", suite.mockCep).Return(nil, errors.New("random error")).Once()
-
-	output, err := suite.locationRepository.GetCityTemp(suite.mockCep)
+	output, err := suite.locationRepository.GetCityTemp(ctx, suite.mockCep)
 
 	suite.Empty(output)
 	suite.EqualError(err, "random error")
@@ -49,9 +50,11 @@ func (suite *ClimateLocationInfoUseCaseTestSuite) Test_GetLocationInfo_GetCEPInf
 		UF:          "PR",
 		DDD:         "41",
 	}
-	suite.mockCepRepo.On("GetLocationInfo", suite.mockCep).Return(utilDto, nil).Once()
 
-	output, err := suite.locationRepository.GetCityTemp(suite.mockCep)
+	ctx := context.Background()
+	suite.mockCepRepo.On("GetLocationInfo", ctx, suite.mockCep).Return(utilDto, nil).Once()
+
+	output, err := suite.locationRepository.GetCityTemp(ctx, suite.mockCep)
 
 	suite.Empty(output)
 	suite.EqualError(err, "city not found")
@@ -67,10 +70,12 @@ func (suite *ClimateLocationInfoUseCaseTestSuite) Test_GetLocationInfo_GetCEPInf
 		UF:          "PR",
 		DDD:         "41",
 	}
-	suite.mockCepRepo.On("GetLocationInfo", suite.mockCep).Return(utilDto, nil).Once()
-	suite.mockTempRepo.On("GetTempByPlaceName", utilDto.Localidade).Return(nil, errors.New("random error")).Once()
 
-	output, err := suite.locationRepository.GetCityTemp(suite.mockCep)
+	ctx := context.Background()
+	suite.mockCepRepo.On("GetLocationInfo", ctx, suite.mockCep).Return(utilDto, nil).Once()
+	suite.mockTempRepo.On("GetTempByPlaceName", ctx, utilDto.Localidade).Return(nil, errors.New("random error")).Once()
+
+	output, err := suite.locationRepository.GetCityTemp(ctx, suite.mockCep)
 
 	suite.Empty(output)
 	suite.EqualError(err, "random error")
@@ -93,10 +98,11 @@ func (suite *ClimateLocationInfoUseCaseTestSuite) Test_GetCityTemp_Correct() {
 		Kelvin:     274,
 	}
 
-	suite.mockCepRepo.On("GetLocationInfo", suite.mockCep).Return(cepResp, nil).Once()
-	suite.mockTempRepo.On("GetTempByPlaceName", cepResp.Localidade).Return(tempResp, nil).Once()
+	ctx := context.Background()
+	suite.mockCepRepo.On("GetLocationInfo", ctx, suite.mockCep).Return(cepResp, nil).Once()
+	suite.mockTempRepo.On("GetTempByPlaceName", ctx, cepResp.Localidade).Return(tempResp, nil).Once()
 
-	output, err := suite.locationRepository.GetCityTemp(suite.mockCep)
+	output, err := suite.locationRepository.GetCityTemp(ctx, suite.mockCep)
 
 	suite.NoError(err)
 	suite.Equal(&ClimateLocationInfoUseCaseDTO{

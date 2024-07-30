@@ -1,6 +1,10 @@
 package temperature_repository
 
-import utils_interface "github.com/andremelinski/observability/cep/internal/pkg/utils/interface"
+import (
+	"context"
+
+	utils_interface "github.com/andremelinski/observability/cep/internal/pkg/utils/interface"
+)
 
 type TempDTO struct {
 	Celsius    float64
@@ -18,8 +22,8 @@ func NewClimateRepository(climateApi utils_interface.IClimateInfoAPI) *Temperatu
 	}
 }
 
-func (l *TemperatureRepository) GetTempByPlaceName(name string) (*TempDTO, error) {
-	weatherInfo, err := l.WeatheInfo.GetWeatherInfo(name)
+func (l *TemperatureRepository) GetTempByPlaceName(ctx context.Context, name string) (*TempDTO, error) {
+	weatherInfo, err := l.WeatheInfo.GetWeatherInfo(ctx, name)
 
 	if err != nil {
 		return nil, err

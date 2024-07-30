@@ -14,7 +14,7 @@ services:
         image: openzipkin/zipkin:latest
         restart: always
         ports:
-        - "9411:9411"
+            - "9411:9411"
         networks:
             - mynetwork        
         healthcheck:
@@ -23,6 +23,7 @@ services:
             interval: 10s
             timeout: 5s
             retries: 3
+
     otel-collector:
         image: otel/opentelemetry-collector:latest
         restart: always
@@ -34,6 +35,7 @@ services:
             - '55679:55679' # zpages extension
         networks:
             - mynetwork
+
     cep:
         container_name: cep
         build:
@@ -41,28 +43,29 @@ services:
         env_file:
             - ./cep/.env
         ports:
-            - 8080:8080
+            - 8081:8081
         depends_on:
             - jaeger-all-in-one
             - otel-collector
             - zipkin
         networks:
             - mynetwork
-    # weather:
-    #     container_name: weather
-    #     build:
-    #         context: ./weather
-    #     env_file:
-    #         - ./weather/.env
-    #     ports:
-    #         - 50051:50051
-    #     depends_on:
-    #         - jaeger-all-in-one
-    #         - otel-collector
-    #         - zipkin
-    #         - cep
-    #     networks:
-    #         - mynetwork
+    principal:
+        container_name: principal
+        build:
+            context: ./principal
+        env_file:
+            - ./principal/.env
+        ports:
+            - 8080:8080
+        depends_on:
+            - jaeger-all-in-one
+            - otel-collector
+            - zipkin
+            - cep
+        networks:
+            - mynetwork
+
 networks:
     mynetwork:
         driver: bridge

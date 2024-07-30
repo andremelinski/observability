@@ -20,9 +20,7 @@ func NewCepInfo(handlerExternalApi utils_interface.IHandlerExternalApi) *CepInfo
 	}
 }
 
-func (c *CepInfo) GetCEPInfo(cep string) (*utils_dto.ViaCepDTO, error) {
-	ctx := context.Background()
-
+func (c *CepInfo) GetCEPInfo(ctx context.Context, cep string) (*utils_dto.ViaCepDTO, error) {
 	url := fmt.Sprintf("https://viacep.com.br/ws/%s/json/", cep)
 
 	bytes, err := c.handlerExternalApi.CallExternalApi(ctx, 3000, "GET", url)

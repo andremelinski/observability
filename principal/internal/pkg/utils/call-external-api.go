@@ -10,6 +10,10 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 )
 
+type IHandlerExternalApi interface {
+	CallExternalApi(ctx context.Context, timeoutMs int, method string, url string) ([]byte, error)
+}
+
 type HandlerExternalApi struct{}
 
 func NewHandlerExternalApi() *HandlerExternalApi {

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -46,6 +47,8 @@ func (suite *LocalTempHandlerTestSuite) Test_CityTemperature() {
 		Kelvin:     282.3,
 	}
 
+	ctx := context.Background()
+
 	suite.Run("Should not allow request with wrong zip code", func() {
 		req, err := http.NewRequest("GET", fmt.Sprintf("/?zipcode=%s", "cep"), nil)
 
@@ -61,7 +64,7 @@ func (suite *LocalTempHandlerTestSuite) Test_CityTemperature() {
 	})
 
 	suite.Run("Should send bad request when GetCityTemp fail", func() {
-		suite.mockLocationUseCase.On("GetCityTemp", suite.mockCep).Return(nil, errors.New("random error")).Once()
+		suite.mockLocationUseCase.On("GetCityTemp", ctx, suite.mockCep).Return(nil, errors.New("random error")).Once()
 
 		req, err := http.NewRequest("GET", fmt.Sprintf("/?zipcode=%s", suite.mockCep), nil)
 
@@ -77,7 +80,7 @@ func (suite *LocalTempHandlerTestSuite) Test_CityTemperature() {
 	})
 
 	suite.Run("Should send 200 ", func() {
-		suite.mockLocationUseCase.On("GetCityTemp", suite.mockCep).Return(cityInfoDto, nil).Once()
+		suite.mockLocationUseCase.On("GetCityTemp", ctx, suite.mockCep).Return(cityInfoDto, nil).Once()
 
 		req, err := http.NewRequest("GET", fmt.Sprintf("/?zipcode=%s", suite.mockCep), nil)
 

@@ -1,6 +1,7 @@
 package cep_repository
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -27,10 +28,10 @@ func TestSuiteLocation(t *testing.T) {
 }
 
 func (suite *LocationRepositoryTestSuite) Test_GetLocationInfo_GetCEPInfo_Throw_Error() {
+	ctx := context.Background()
+	suite.mockViaCep.On("GetCEPInfo", ctx, suite.mockCep).Return(nil, errors.New("random error")).Once()
 
-	suite.mockViaCep.On("GetCEPInfo", suite.mockCep).Return(nil, errors.New("random error")).Once()
-
-	output, err := suite.locationRepository.GetLocationInfo(suite.mockCep)
+	output, err := suite.locationRepository.GetLocationInfo(ctx, suite.mockCep)
 
 	suite.Empty(output)
 	suite.EqualError(err, "random error")
@@ -50,9 +51,11 @@ func (suite *LocationRepositoryTestSuite) Test_GetLocationInfo_GetCEPInfo_Return
 		DDD:         "41",
 		Siafi:       "0000",
 	}
-	suite.mockViaCep.On("GetCEPInfo", suite.mockCep).Return(utilDto, nil).Once()
 
-	output, err := suite.locationRepository.GetLocationInfo(suite.mockCep)
+	ctx := context.Background()
+	suite.mockViaCep.On("GetCEPInfo", ctx, suite.mockCep).Return(utilDto, nil).Once()
+
+	output, err := suite.locationRepository.GetLocationInfo(ctx, suite.mockCep)
 
 	suite.NoError(err)
 	suite.Equal(&LocationOutputDTO{

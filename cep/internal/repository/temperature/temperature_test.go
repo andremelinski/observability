@@ -1,6 +1,7 @@
 package temperature_repository
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -27,10 +28,10 @@ func TestSuiteWeather(t *testing.T) {
 }
 
 func (suite *TemperatureRepositoryTestSuite) Test_GetLocationInfo_GetCEPInfo_Throw_Error() {
+	ctx := context.Background()
+	suite.mockWeatherApi.On("GetWeatherInfo", ctx, suite.mockCep).Return(nil, errors.New("random error")).Once()
 
-	suite.mockWeatherApi.On("GetWeatherInfo", suite.mockCep).Return(nil, errors.New("random error")).Once()
-
-	output, err := suite.temperatureRepository.GetTempByPlaceName(suite.mockCep)
+	output, err := suite.temperatureRepository.GetTempByPlaceName(ctx, suite.mockCep)
 
 	suite.Empty(output)
 	suite.EqualError(err, "random error")
@@ -94,9 +95,10 @@ func (suite *TemperatureRepositoryTestSuite) Test_GetLocationInfo_GetCEPInfo_Ret
 			},
 		},
 	}
-	suite.mockWeatherApi.On("GetWeatherInfo", suite.mockCep).Return(utilDto, nil).Once()
+	ctx := context.Background()
+	suite.mockWeatherApi.On("GetWeatherInfo", ctx, suite.mockCep).Return(utilDto, nil).Once()
 
-	output, err := suite.temperatureRepository.GetTempByPlaceName(suite.mockCep)
+	output, err := suite.temperatureRepository.GetTempByPlaceName(ctx, suite.mockCep)
 
 	suite.NoError(err)
 	suite.Equal(&TempDTO{

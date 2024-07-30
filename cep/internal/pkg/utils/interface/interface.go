@@ -11,9 +11,9 @@ type IHandlerExternalApi interface {
 }
 
 type IClimateInfoAPI interface {
-	GetWeatherInfo(place string) (*utils_dto.WeatherApiDTO, error)
+	GetWeatherInfo(ctx context.Context, place string) (*utils_dto.WeatherApiDTO, error)
 }
 
 type ICepInfoAPI interface {
-	GetCEPInfo(cep string) (*utils_dto.ViaCepDTO, error)
+	GetCEPInfo(ctx context.Context, cep string) (*utils_dto.ViaCepDTO, error)
 }

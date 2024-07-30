@@ -2,12 +2,9 @@ package web
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 )
 
 type WebServer struct {
@@ -27,19 +24,12 @@ func NewWebServer(
 	}
 }
 
+// loop through the handlers and add them to the router
+// start the server
 func (s *WebServer) Start() {
-
-	s.Router.Use(middleware.RequestID)
-	s.Router.Use(middleware.RealIP)
-	s.Router.Use(middleware.Recoverer)
-	s.Router.Use(middleware.Logger)
-	s.Router.Use(middleware.Timeout(60 * time.Second))
 
 	for _, handler := range s.Handlers {
 		s.Router.MethodFunc(handler.Method, handler.Path, handler.HandlerFunc)
 	}
-	log.Println("Starting cep server on port", s.WebServerPort)
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", s.WebServerPort), s.Router); err != nil {
-		log.Fatal(err)
-	}
+	http.ListenAndServe(fmt.Sprintf(":%d", s.WebServerPort), s.Router)
 }

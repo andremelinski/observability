@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"context"
 	"errors"
 
 	"github.com/andremelinski/observability/cep/internal/repository"
@@ -14,7 +15,7 @@ type ClimateLocationInfoUseCaseDTO struct {
 }
 
 type IClimateLocationInfoUseCase interface {
-	GetCityTemp(name string) (*ClimateLocationInfoUseCaseDTO, error)
+	GetCityTemp(ctx context.Context, name string) (*ClimateLocationInfoUseCaseDTO, error)
 }
 
 type TemperatureRepository struct {
@@ -29,9 +30,9 @@ func NewClimateLocationInfoUseCase(locInfo repository.ILocationInfo, weatherInfo
 	}
 }
 
-func (l *TemperatureRepository) GetCityTemp(name string) (*ClimateLocationInfoUseCaseDTO, error) {
+func (l *TemperatureRepository) GetCityTemp(ctx context.Context, name string) (*ClimateLocationInfoUseCaseDTO, error) {
 
-	cityInfo, err := l.LocInfo.GetLocationInfo(name)
+	cityInfo, err := l.LocInfo.GetLocationInfo(ctx, name)
 
 	if err != nil {
 		return nil, err
@@ -41,7 +42,7 @@ func (l *TemperatureRepository) GetCityTemp(name string) (*ClimateLocationInfoUs
 		return nil, errors.New("city not found")
 	}
 
-	weatherInfo, err := l.WeatherInfo.GetTempByPlaceName(cityInfo.Localidade)
+	weatherInfo, err := l.WeatherInfo.GetTempByPlaceName(ctx, cityInfo.Localidade)
 
 	if err != nil {
 		return nil, err

@@ -1,6 +1,7 @@
 package composite
 
 import (
+	"github.com/andremelinski/observability/cep/internal/infra/opentelemetry"
 	"github.com/andremelinski/observability/cep/internal/infra/web/webserver/handlers"
 	"github.com/andremelinski/observability/cep/internal/pkg/utils"
 	"github.com/andremelinski/observability/cep/internal/pkg/web"
@@ -9,7 +10,8 @@ import (
 	"github.com/andremelinski/observability/cep/internal/usecases"
 )
 
-func TemperatureLocationComposite(apiKey string) *handlers.LocalTemperatureHandler {
+func TemperatureLocationComposite(observability *opentelemetry.TracerOpenTelemetry, apiKey string) *handlers.LocalTemperatureHandler {
+	tracer := observability.InitOTELTrace("ms-cep-tracer")
 
 	httpHandler := web.NewWebResponseHandler()
 	handlerExternalApi := utils.NewHandlerExternalApi()
@@ -22,5 +24,5 @@ func TemperatureLocationComposite(apiKey string) *handlers.LocalTemperatureHandl
 
 	cepUsecase := usecases.NewClimateLocationInfoUseCase(cepRepo, tempRepo)
 
-	return handlers.NewLocalTemperatureHandler(cepUsecase, httpHandler)
+	return handlers.NewLocalTemperatureHandler(cepUsecase, httpHandler, tracer, observability)
 }
