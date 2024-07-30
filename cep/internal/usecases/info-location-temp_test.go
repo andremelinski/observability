@@ -5,9 +5,11 @@ import (
 	"errors"
 	"testing"
 
+	mock_opentelemetry "github.com/andremelinski/observability/cep/internal/pkg/mock/opentelemetry"
 	mock_usecase "github.com/andremelinski/observability/cep/internal/pkg/mock/repository"
 	cep_repository "github.com/andremelinski/observability/cep/internal/repository/cep"
 	temperature_repository "github.com/andremelinski/observability/cep/internal/repository/temperature"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -17,12 +19,22 @@ type ClimateLocationInfoUseCaseTestSuite struct {
 	mockCepRepo        *mock_usecase.LocationUseCaseMock
 	mockTempRepo       *mock_usecase.TemperatureUseCaseMock
 	mockCep            string
+	mockStartOTELTrace *mock_opentelemetry.StartOTELTraceMock
+	mockTracer         *mock_opentelemetry.MockTracer
+	mockMockSpan       *mock_opentelemetry.MockSpan
 }
 
 func (suite *ClimateLocationInfoUseCaseTestSuite) SetupSuite() {
 	suite.mockCepRepo = new(mock_usecase.LocationUseCaseMock)
 	suite.mockTempRepo = new(mock_usecase.TemperatureUseCaseMock)
-	suite.locationRepository = NewClimateLocationInfoUseCase(suite.mockCepRepo, suite.mockTempRepo)
+	// Create an instance of MockTracer
+	suite.mockTracer = new(mock_opentelemetry.MockTracer)
+
+	suite.mockMockSpan = new(mock_opentelemetry.MockSpan)
+
+	suite.mockStartOTELTrace = new(mock_opentelemetry.StartOTELTraceMock)
+
+	suite.locationRepository = NewClimateLocationInfoUseCase(suite.mockCepRepo, suite.mockTempRepo, suite.mockTracer, suite.mockStartOTELTrace)
 	suite.mockCep = "cep"
 }
 
@@ -32,7 +44,11 @@ func TestSuiteLocation(t *testing.T) {
 
 func (suite *ClimateLocationInfoUseCaseTestSuite) Test_GetLocationInfo_GetCEPInfo_Throw_Error() {
 	ctx := context.Background()
+	suite.mockStartOTELTrace.On("StartOTELTrace", ctx, suite.mockTracer, "via-cep-trace").Return(ctx, suite.mockMockSpan).Once()
+
 	suite.mockCepRepo.On("GetLocationInfo", ctx, suite.mockCep).Return(nil, errors.New("random error")).Once()
+
+	suite.mockMockSpan.On("End", mock.Anything).Return().Once()
 
 	output, err := suite.locationRepository.GetCityTemp(ctx, suite.mockCep)
 
@@ -52,7 +68,11 @@ func (suite *ClimateLocationInfoUseCaseTestSuite) Test_GetLocationInfo_GetCEPInf
 	}
 
 	ctx := context.Background()
+	suite.mockStartOTELTrace.On("StartOTELTrace", ctx, suite.mockTracer, "via-cep-trace").Return(ctx, suite.mockMockSpan).Once()
+
 	suite.mockCepRepo.On("GetLocationInfo", ctx, suite.mockCep).Return(utilDto, nil).Once()
+
+	suite.mockMockSpan.On("End", mock.Anything).Return().Once()
 
 	output, err := suite.locationRepository.GetCityTemp(ctx, suite.mockCep)
 
@@ -72,8 +92,16 @@ func (suite *ClimateLocationInfoUseCaseTestSuite) Test_GetLocationInfo_GetCEPInf
 	}
 
 	ctx := context.Background()
+
+	suite.mockStartOTELTrace.On("StartOTELTrace", ctx, suite.mockTracer, "via-cep-trace").Return(ctx, suite.mockMockSpan).Once()
+
 	suite.mockCepRepo.On("GetLocationInfo", ctx, suite.mockCep).Return(utilDto, nil).Once()
+
+	suite.mockMockSpan.On("End", mock.Anything).Return().Once()
+
+	suite.mockStartOTELTrace.On("StartOTELTrace", ctx, suite.mockTracer, "weather-api-trace").Return(ctx, suite.mockMockSpan).Once()
 	suite.mockTempRepo.On("GetTempByPlaceName", ctx, utilDto.Localidade).Return(nil, errors.New("random error")).Once()
+	suite.mockMockSpan.On("End", mock.Anything).Return().Once()
 
 	output, err := suite.locationRepository.GetCityTemp(ctx, suite.mockCep)
 
@@ -99,8 +127,16 @@ func (suite *ClimateLocationInfoUseCaseTestSuite) Test_GetCityTemp_Correct() {
 	}
 
 	ctx := context.Background()
+
+	suite.mockStartOTELTrace.On("StartOTELTrace", ctx, suite.mockTracer, "via-cep-trace").Return(ctx, suite.mockMockSpan).Once()
+
 	suite.mockCepRepo.On("GetLocationInfo", ctx, suite.mockCep).Return(cepResp, nil).Once()
+
+	suite.mockMockSpan.On("End", mock.Anything).Return().Once()
+
+	suite.mockStartOTELTrace.On("StartOTELTrace", ctx, suite.mockTracer, "weather-api-trace").Return(ctx, suite.mockMockSpan).Once()
 	suite.mockTempRepo.On("GetTempByPlaceName", ctx, cepResp.Localidade).Return(tempResp, nil).Once()
+	suite.mockMockSpan.On("End", mock.Anything).Return().Once()
 
 	output, err := suite.locationRepository.GetCityTemp(ctx, suite.mockCep)
 

@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/andremelinski/observability/cep/internal/infra/opentelemetry"
 	mock_usecases "github.com/andremelinski/observability/cep/internal/pkg/mock/usecases"
 	"github.com/andremelinski/observability/cep/internal/pkg/web"
 	"github.com/andremelinski/observability/cep/internal/usecases"
@@ -31,7 +32,7 @@ func (suite *LocalTempHandlerTestSuite) SetupSuite() {
 	suite.mockLocationUseCase = new(mock_usecases.GetCityTempInfoUseCaseMock)
 	webHandler := web.NewWebResponseHandler()
 
-	suite.localTempHandler = NewLocalTemperatureHandler(suite.mockLocationUseCase, webHandler)
+	suite.localTempHandler = NewLocalTemperatureHandler(suite.mockLocationUseCase, webHandler, new(opentelemetry.TracerOpenTelemetry))
 }
 
 func TestSuiteLocation(t *testing.T) {
